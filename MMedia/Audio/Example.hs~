@@ -1,0 +1,8 @@
+module MMedia.Audio.Example where
+
+import MMedia.Audio
+
+sineTest :: Audio
+sineTest = Timeline $
+              \δt t₀ -> 
+                [ AudioChunk δt | tᵢ <- iterate(@+ δt) timeZero ]
