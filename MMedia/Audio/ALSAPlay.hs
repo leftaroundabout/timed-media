@@ -19,7 +19,7 @@ import Control.Monad
    -- Play a mono audio stream by piping it to aplay in 16 Bit, 44.1 kHz
 aplaySimple :: Timecode -> Audio -> IO ()
 aplaySimple t₀ aud = do
-    (aplaySTDIn, _, _, aplayProc) <- runInteractiveCommand "tee aplyspleoutp.wvcd | aplay -f cd >/dev/null 2>/dev/null"
+    (aplaySTDIn, _, _, aplayProc) <- runInteractiveCommand "aplay -f cd >/dev/null 2>/dev/null" -- tee aplyspleoutp.wvcd | 
     hSetBuffering aplaySTDIn $ BlockBuffering (Just 1024)
     forM_ (runTimeline aud ((1/10) *% oneSecond) t₀) (\chunk -> do
 --        System.IO.putStrLn "lala"

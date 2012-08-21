@@ -3,8 +3,8 @@ import MMedia.Audio.Example
 import MMedia.Audio.ALSAPlay
 
 main = aplaySimple (timecode $ 0:0:[0]) $ mix [melodyLoop, bassLoop]
-  where melodyLoop = timeChain [ (timecode [s], melody) | s<-[0,    8] ]
-        bassLoop   = timeChain [ (timecode [s], bass  ) | s<-[0, 4, 8] ]
+  where melodyLoop = timeChain [ (timecode [s], melody) | s<-take 50000  [0,    8 ..] ]
+        bassLoop   = timeChain [ (timecode [s], bass  ) | s<-take 100000 [0, 4    ..] ]
         
         melody = timeChain $ zip [ timecode [s] | s<-[0, 1/4 ..] ] melotones
         bass   = timeChain $ zip [ timecode [s] | s<-[0 ..] ] basstones
@@ -14,4 +14,4 @@ main = aplaySimple (timecode $ 0:0:[0]) $ mix [melodyLoop, bassLoop]
         basstones = [ tone $ (165 * 2**(n/12)) *~ oneHertz
                      | n<-[0,          3,          8,          7,             0 ] ]
         
-        tone = simpleDecayTone 2 oneHertz
+        tone = simpleDecayTone 2 (1/11) oneHertz

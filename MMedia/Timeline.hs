@@ -51,9 +51,11 @@ delay tΔ (Timeline line) = Timeline $ \δt t₀ -> line δt (t₀ @-% tΔ)
 
 timeChain :: Chunky c => [(Timecode, Timeline c)] -> Timeline c
 timeChain [(_, line)] = line
-timeChain ((t₁, line₁) : remain)
-     = glue $ map ( \(tᵣ, line) -> (tᵣ, delay (tᵣ @-@ t₁) line) ) remain
- where glue = foldl (\acc (tᵣ, line) -> switchAt tᵣ acc line) line₁
+timeChain (l₁@(t₁, line₁) : remain)
+     = glue . reverse
+         $ l₁ : map ( \(tᵣ, line) -> (tᵣ, delay (tᵣ @-@ t₁) line) ) remain
+ where glue (l:ls) = snd
+         $ foldl (\(tᵤ, acc) (tᵣ, line) -> (tᵣ, switchAt tᵤ line acc)) l ls
 
 
 
