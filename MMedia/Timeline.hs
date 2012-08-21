@@ -1,3 +1,14 @@
+-- |
+-- Module      : MMedia.Timeline
+-- Copyright   : (c) Justus Sagemüller 2012
+-- License     : GPL v3
+-- 
+-- Maintainer  : sagemuej@smail.uni-koeln.de
+-- Stability   : experimental
+-- Portability : portable
+-- 
+-- 
+
 module MMedia.Timeline ( module MMedia.Timecode
                        , Timeline(Timeline), runTimeline
                        , Chunky, switchOvr
@@ -93,7 +104,7 @@ xOverAt tx reach fadeFn (Timeline line₁) (Timeline line₂) = Timeline result
 
 
 class Mixable chnk where
-  
+
   mixChunks :: [chnk] -> chnk
 
 

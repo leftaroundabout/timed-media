@@ -9,7 +9,7 @@ Build-Type:          Simple
 Cabal-Version:       >=1.2
 
 Library
-  Build-Depends:     base >= 3, bytestring, binary, process
+  Build-Depends:     base >= 3, bytestring, binary, process, vector
   Exposed-modules:   MMedia.Timeline MMedia.Timecode MMedia.Timecode.Arith MMedia.Timecode.Internal
                      MMedia.Audio MMedia.Audio.Example MMedia.Audio.ALSAPlay
   ghc-options:       -O2
