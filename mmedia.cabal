@@ -10,6 +10,7 @@ Cabal-Version:       >=1.2
 
 Library
   Build-Depends:     base >= 3, bytestring, binary, process, vector
-  Exposed-modules:   MMedia.Timeline MMedia.Timecode MMedia.Timecode.Arith MMedia.Timecode.Internal
+  Exposed-modules:   MMedia.Timeline MMedia.Timecode MMedia.Timecode.Arith
                      MMedia.Audio MMedia.Audio.Example MMedia.Audio.ALSAPlay
-  ghc-options:       -O2
+  Other-modules:     MMedia.Timecode.Internal
+  ghc-options:       -O2 -optc-ffast-math -optc-march=native

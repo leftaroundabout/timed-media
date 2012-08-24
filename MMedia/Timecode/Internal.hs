@@ -9,13 +9,3 @@ newtype Frequency = Frequency { hertzs :: Double }
 
 
 
-oneSecond :: RelTime
-oneSecond = RelTime 1
-
-timeZero :: Timecode
-timeZero = Timecode 0
-
-
-
-oneHertz :: Frequency
-oneHertz = Frequency 1

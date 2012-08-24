@@ -1,5 +1,5 @@
 module MMedia.Timecode ( Timecode(), timecode, RelTime(), Frequency(), seconds, hertzs
-                       , oneSecond, oneHertz, timeZero
+                       , noTime, oneSecond, oneHertz, timeZero
                        ) where
 
 import MMedia.Timecode.Internal
@@ -11,3 +11,16 @@ timecode        [ss]  = Timecode ss
 
 -- instance Show RelTime where
 --   show (RelTime t) = show(
+
+
+noTime :: RelTime
+noTime = RelTime 0
+
+oneSecond :: RelTime
+oneSecond = RelTime 1
+
+timeZero :: Timecode
+timeZero = Timecode 0
+
+oneHertz :: Frequency
+oneHertz = Frequency 1

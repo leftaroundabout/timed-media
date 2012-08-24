@@ -4,6 +4,7 @@ module MMedia.Audio( module MMedia.Timeline
                    , Sampling(PCM), pcmSampleDuration
                    , AudioChunk(AudioChunk), renderAudioChunk
                    , Audio
+                   , silence
                    , AntiAliasStrategy(NoAntiAliasing)
                    , audioFn
                    ) where
@@ -14,18 +15,22 @@ import MMedia.Timeline
 import Data.List
 import Data.Maybe
 
-import qualified Data.Vector.Unboxed as VU
+import qualified Data.Vector.Storable as VU
 
 
 
-type AudioSample = Float -- Double is rather more common in modern audio processing already,
-                         -- but as far as I can see they are in no significant way better
-                         -- than 32-bit floats, since these already surpass the dynamic
+type AudioSample = Float -- Double is already rather more common in modern audio
+                         -- processing, but this is not really significantly better
+                         -- than 32-bit floats since these already surpass the dynamic
                          -- range of the human ear by many orders of magnitude.
 
 type SampleCnt = VU.Vector AudioSample
 
 data Sampling = PCM { pcmSampleDuration :: RelTime }    -- sample duration / inverse sample rate
+
+fromPCMchunkGen :: (RelTime -> SampleCnt) -> Sampling -> SampleCnt
+fromPCMchunkGen gen = gen . pcmSampleDuration
+
 
 data AudioChunk = AudioChunk { -- aChunkLength :: RelTime
                                renderAudioChunk :: Maybe (Sampling -> SampleCnt)
@@ -36,21 +41,32 @@ type Audio = Timeline AudioChunk
 
 
 
-data AntiAliasStrategy = NoAntiAliasing
---                        | Oversample_SincBL { aAOversampling :: Int      -- over-samples per output sample
---                                            , aAOvrspleSincWidth :: Int  -- output samples included in the bandlimiting
---                                            }
---                        | RandSample_LinInterpolate
---                        | RandSample_SincInterpolate { aARandSampleSincWidth :: Int }
---                        | RandOverSample_SincBL { aARandOversampling :: Int
---                                                , aARandOvrspleSincWidth :: Int }
+silence :: Audio
+silence = Timeline $ \_ _ _ -> TimeRendering
+                                  (repeat $ AudioChunk Nothing)
+                                  (repeat $ AudioChunk Nothing)
+
+
+data AntiAliasStrategy = NoAntiAliasing {-
+                       | Oversample_SincBL { aAOversampling :: Int      -- over-samples per output sample
+                                           , aAOvrspleSincWidth :: Int  -- output samples included in the bandlimiting
+                                           }
+                       | RandSample_LinInterpolate
+                       | RandSample_SincInterpolate { aARandSampleSincWidth :: Int }
+                       | RandOverSample_SincBL { aARandOversampling :: Int
+                                               , aARandOvrspleSincWidth :: Int }
+                                        -}
 
 
 audioFn :: AntiAliasStrategy -> (Timecode -> AudioSample) -> Audio
-audioFn NoAntiAliasing f = Timeline $ \δt t₀ ->
-   let chunkGen tᵢ (PCM δs) = VU.generate (floor $ δt %/% δs)
-                                          (\i -> f(tᵢ @+% δs %* i))
-   in  [ AudioChunk . Just $ chunkGen tᵢ | tᵢ <- iterate(@+% δt) t₀ ]
+audioFn NoAntiAliasing f = Timeline $ \δt t₀ tpre ->
+   let chunkGen tᵢ δs = VU.generate (floor $ δt %/% δs)
+                                          ( \i -> f(tᵢ @+% δs %* i) )
+   in  TimeRendering
+        { timeRenderedChunks = [ wrap $ chunkGen tᵢ | tᵢ <- iterate(@+% δt) t₀ ]
+        , preloadChunks = [ wrap $ chunkGen tᵢ | tᵢ <- take(ceiling $ tpre %/% δt)
+                                                         $ iterate(@-% δt) (t₀@-% δt) ] }
+ where wrap = AudioChunk . Just . fromPCMchunkGen
 
 
 instance Chunky AudioChunk where
@@ -66,7 +82,7 @@ instance Chunky AudioChunk where
                            rslice = VU.drop lsples $ arr₂ sl
                 Nothing -> lslice VU.++ rslice 
                      where lslice = VU.take lsples arr₁
-                           arr₁ = fromJust cr₁ sl
+                           arr₁ = fromJust cr₁ sl  -- cr₁ can't be Nothing here, because of the first patter for switchOvr
                            rslice =  VU.replicate (VU.length arr₁ - lsples) 0
             where lsples = floor $ t %/% rate
 
