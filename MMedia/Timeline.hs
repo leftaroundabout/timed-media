@@ -18,13 +18,13 @@
 -- so you can make latency/performance tradeoffs as fits for each application.
 
 module MMedia.Timeline ( module MMedia.Timecode
-                       , TimeRendering(TimeRendering), timeRenderedChunks, preloadChunks
+                       , TimeRendering(TimeRendering, timeRenderedChunks, preloadChunks)
                        , Timeline(Timeline), runTimeline
                        , Chunky, switchOvr
                        , switchAt, delay, timeChain
                        , CrossRatio, lhsOnly, rhsOnly
                        , Crossable, crossOvr
-                       , xOverAt
+                       , XOverForm, xOverAt
                        , Mixable, mixChunks
                        , mix
                        ) where
@@ -102,7 +102,8 @@ class Chunky chnk => Crossable chnk where
   
   crossOvr :: (RelTime -> CrossRatio) -> chnk -> chnk -> chnk
 
-type XOverForm = CrossRatio -> CrossRatio   -- should be a homeomorphism [-1,1] -> [-1,1]
+   -- | should be a homeomorphism [-1,1] -> [-1,1]
+type XOverForm = CrossRatio -> CrossRatio
 
 
 xOverAt :: Crossable c
