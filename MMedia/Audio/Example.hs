@@ -20,7 +20,7 @@ sineDecaying μ ν = audioFn NoAntiAliasing f
 simpleDecayTone :: Float -> Float -> Frequency -> Frequency -> Audio
 simpleDecayTone harmCont evenHarms μ ν = audioFn NoAntiAliasing f
   where f t 
-          | t `laterThan` timeZero = wfn t' ω -- * exp (μ ~*% t' / 2)
+          | t `laterThan` timeZero = wfn t' ω -- -- * exp (μ ~*% t' / 2)
           | otherwise = 0
           where ω = 2*pi * (ν ~*% t')
                 t' = t @-@ timeZero

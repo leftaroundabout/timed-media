@@ -1,3 +1,13 @@
+-- |
+-- Module      : MMedia.Timecode.Arith
+-- Copyright   : (c) Justus Sagemüller 2012
+-- License     : GPL v3
+-- 
+-- Maintainer  : sagemuej@smail.uni-koeln.de
+-- Stability   : experimental
+-- Portability : portable
+-- 
+-- 
 module MMedia.Timecode.Arith( module MMedia.Timecode 
                             , (@-@), (@+%), (@-%), (%+%), (%-%)
                             , (~+~), (~-~), (%+@), (/%), (%/%), (/~), (~/~)

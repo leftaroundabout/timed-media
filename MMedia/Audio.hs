@@ -1,5 +1,16 @@
+-- |
+-- Module      : MMedia.Audio
+-- Copyright   : (c) Justus Sagemüller 2012
+-- License     : GPL v3
+-- 
+-- Maintainer  : sagemuej@smail.uni-koeln.de
+-- Stability   : experimental
+-- Portability : portable
+-- 
+-- 
 module MMedia.Audio( module MMedia.Timeline
                    , AudioSample
+                   , SampleDuration
                    , SampleCnt
                    , Sampling(PCM), pcmSampleDuration
                    , AudioChunk(AudioChunk), renderAudioChunk
@@ -26,7 +37,8 @@ type AudioSample = Float -- Double is already rather more common in modern audio
 
 type SampleCnt = VU.Vector AudioSample
 
-data Sampling = PCM { pcmSampleDuration :: RelTime }    -- sample duration / inverse sample rate
+type SampleDuration = RelTime
+data Sampling = PCM { pcmSampleDuration :: SampleDuration }  -- inverse sample rate
 
 fromPCMchunkGen :: (RelTime -> SampleCnt) -> Sampling -> SampleCnt
 fromPCMchunkGen gen = gen . pcmSampleDuration

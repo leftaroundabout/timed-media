@@ -8,13 +8,14 @@
 -- Portability : portable
 -- 
 -- 
--- | A 'Timeline' represents time-dependent information such as audio or video,
---   that is accessible for any time at all (i.e. infinitely stretched
---   both forwards and "backwards" in time, though of course there will in
---   general be nothing meaningful to read for all times). Access is by specifying
---   a starting time, this yields all the history from that point on. The
---   information itself is stored in strictly-evaluated chunks, the length
---   of which can also be specified by the evaluator of the Timeline object.
+-- A 'Timeline' represents time-dependent information such as audio or video,
+-- that is accessible for any time at all (i.e. infinitely stretched
+-- both forwards and \"backwards\" in time, though of course there will in
+-- general be nothing meaningful to read for all times). Access is by specifying
+-- a starting time; this yields all the history from that point on. The
+-- information itself is stored in strictly-evaluated chunks. The length
+-- of these chunks can be specified when evaluating the Timeline object,
+-- so you can make latency/performance tradeoffs as fits for each application.
 
 module MMedia.Timeline ( module MMedia.Timecode
                        , TimeRendering(TimeRendering), timeRenderedChunks, preloadChunks
@@ -41,9 +42,10 @@ data TimeRendering chnk = TimeRendering { timeRenderedChunks :: [chnk]
                                         , preloadChunks :: [chnk]  -- in reverse order, but the chunks themselves are forward.
                                         }
 
-newtype Timeline chnk = Timeline { runTimeline :: RelTime   -- desired length of the chunks
-                                               -> Timecode  -- starting time for first chunk
-                                               -> RelTime   -- minimum preload
+newtype Timeline chnk = Timeline {   -- | desired length of the chunks -> starting time for first chunk -> minimum preload -> rendered timeline
+                                   runTimeline :: RelTime
+                                               -> Timecode
+                                               -> RelTime
                                                -> TimeRendering chnk }
 
 

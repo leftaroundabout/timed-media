@@ -1,3 +1,17 @@
+-- |
+-- Module      : MMedia.Timecode
+-- Copyright   : (c) Justus Sagemüller 2012
+-- License     : GPL v3
+-- 
+-- Maintainer  : sagemuej@smail.uni-koeln.de
+-- Stability   : experimental
+-- Portability : portable
+-- 
+-- 
+-- Absolute- and relative-time types, for handling these physical quantities
+-- in a way free of noncanonicalties, guaranteed by the type system. Calculations
+-- can be done with the operations from "MMedia.Timecode.Arith".
+
 module MMedia.Timecode ( Timecode(), timecode, RelTime(), Frequency(), seconds, hertzs
                        , noTime, oneSecond, oneHertz, timeZero
                        ) where
