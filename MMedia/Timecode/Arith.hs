@@ -11,7 +11,7 @@
 module MMedia.Timecode.Arith( module MMedia.Timecode 
                             , (@-@), (@+%), (@-%), (%+%), (%-%)
                             , (~+~), (~-~), (%+@), (/%), (%/%), (/~), (~/~)
-                            , (~*%), (%*~), (%*), (~*), (*%), (*~)
+                            , (~*%), (%*~), (%*), (%/), (~*), (*%), (*~)
                             , earlierThan, laterThan
                             )where
 
@@ -23,7 +23,7 @@ infixl 6 @+%, @-%            -- always a relative time at the side of a %
 infixl 6 %+%, %-%, ~+~, ~-~  -- always a frequency at the side of a ~
 infixr 6 %+@
 infix 7 /%, %/%, /~, ~/~, ~*%, %*~
-infixl 7 %*, ~*
+infixl 7 %*, %/, ~*
 infixr 7 *%, *~
 
 (@-@) :: Timecode -> Timecode -> RelTime
@@ -41,10 +41,11 @@ RelTime δ₁ %+% RelTime δ₂ = RelTime $ δ₁ + δ₂
 Frequency ν₁ ~-~ Frequency ν₂ = Frequency $ ν₁ - ν₂
 Frequency ν₁ ~+~ Frequency ν₂ = Frequency $ ν₁ + ν₂
 
-(%*) :: Real i => RelTime -> i -> RelTime
+(%*), (%/) :: Real i => RelTime -> i -> RelTime
 (*%) :: Real i => i -> RelTime -> RelTime
 (%/%) :: RealFrac q => RelTime -> RelTime -> q
 RelTime δt %* n = RelTime $ δt * realToFrac n
+RelTime δt %/ n = RelTime $ δt / realToFrac n
 n *% RelTime δt = RelTime $ realToFrac n * δt
 RelTime δ₁ %/% RelTime δ₂ = realToFrac $ δ₁ / δ₂
 
@@ -70,14 +71,4 @@ laterThan, earlierThan :: Timecode -> Timecode -> Bool
 Timecode t₁ `laterThan` Timecode t₂ = t₁ > t₂
 Timecode t₁ `earlierThan` Timecode t₂ = t₁ < t₂
 
-
-instance Eq RelTime where
-  RelTime δ₁ == RelTime δ₂ = δ₁ == δ₂
-  RelTime δ₁ /= RelTime δ₂ = δ₁ /= δ₂
-
-instance Ord RelTime where
-  RelTime δ₁ < RelTime δ₂ = δ₁ < δ₂
-  RelTime δ₁ > RelTime δ₂ = δ₁ > δ₂
-  RelTime δ₁ <= RelTime δ₂ = δ₁ <= δ₂
-  RelTime δ₁ >= RelTime δ₂ = δ₁ >= δ₂
 

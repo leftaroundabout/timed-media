@@ -29,6 +29,10 @@ import qualified Data.Vector.Storable as VU
 
 import Control.Monad
 
+
+iChunkRate  = (1/10) *% oneSecond            -- chunk length
+iSampleRate = (1/44100) *% oneSecond    -- CDA-type sampling
+
 -- | Play a mono audio stream by piping it to aplay
 --   in 16 Bit, 44.1 kHz, in chunks of length 100 ms.
 aplaySimple :: Timecode -> Audio -> IO ()
@@ -36,19 +40,19 @@ aplaySimple t₀ aud = do
     (aplaySTDIn, _, _, aplayProc) <- runInteractiveCommand "aplay -f cd >/dev/null 2>/dev/null" -- tee aplyspleoutp.wvcd | 
     hSetBuffering aplaySTDIn $ BlockBuffering (Just 1024)
 
-    forM_ (timeRenderedChunks $ runTimeline aud
-                  ((1/10) *% oneSecond)   -- chunk length
-                  t₀                      -- start
-                  noTime                  -- preload
-                                                  ) (
+    forM_ ( staticRenderTimeline iChunkRate
+                                 t₀        -- start time
+                                 (PCM iSampleRate)
+                                 aud                     )  (
        \c -> case renderAudioChunk c of
-         Just chunk -> BL.hPut aplaySTDIn . runPut
-           $ VU.forM_ (chunk (PCM $ (1/44100) *% oneSecond)) (
+         Just (SampleCnt sl chunk) -> BL.hPut aplaySTDIn . runPut
+           $ VU.forM_ chunk (
                \sample -> do
                 let outSple = round . max (-32768) . min 32767 $ sample * 32768 :: Int16
                 putWord16le $ unsafeCoerce outSple
                 putWord16le $ unsafeCoerce outSple
               )
-         Nothing -> BL.hPut aplaySTDIn $ BL.replicate (2 * 2 * 44100 `div` 10) 0
+         Nothing -> BL.hPut aplaySTDIn
+            $ BL.replicate (2 * 2 * round(iChunkRate%/%iSampleRate)) 0
 --        hFlush aplaySTDIn
      )

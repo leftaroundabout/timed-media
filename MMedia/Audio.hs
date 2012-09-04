@@ -11,10 +11,10 @@
 module MMedia.Audio( module MMedia.Timeline
                    , AudioSample
                    , SampleDuration
-                   , SampleCnt
-                   , Sampling(PCM), pcmSampleDuration
-                   , AudioChunk(AudioChunk), renderAudioChunk
-                   , Audio
+                   , SampleCnt(SampleCnt, sampleCntSampling, getSampleCnt)
+                   , Sampling(PCM, pcmSampleDuration)
+                   , AudioChunk(AudioChunk, renderAudioChunk)
+                   , Audio, fromPCM
                    , silence
                    , AntiAliasStrategy(NoAntiAliasing)
                    , audioFn
@@ -22,6 +22,8 @@ module MMedia.Audio( module MMedia.Timeline
 
 import MMedia.Timecode.Arith
 import MMedia.Timeline
+
+import MMedia.MiscUtil.Data
 
 import Data.List
 import Data.Maybe
@@ -35,28 +37,33 @@ type AudioSample = Float -- Double is already rather more common in modern audio
                          -- than 32-bit floats since these already surpass the dynamic
                          -- range of the human ear by many orders of magnitude.
 
-type SampleCnt = VU.Vector AudioSample
 
 type SampleDuration = RelTime
 data Sampling = PCM { pcmSampleDuration :: SampleDuration }  -- inverse sample rate
 
-fromPCMchunkGen :: (RelTime -> SampleCnt) -> Sampling -> SampleCnt
-fromPCMchunkGen gen = gen . pcmSampleDuration
+
+data SampleCnt = SampleCnt { sampleCntSampling :: Sampling
+                           , getSampleCnt :: VU.Vector AudioSample }
 
 
-data AudioChunk = AudioChunk { -- aChunkLength :: RelTime
-                               renderAudioChunk :: Maybe (Sampling -> SampleCnt)
-                             }
+newtype AudioChunk = AudioChunk { -- aChunkLength :: RelTime
+                                  renderAudioChunk :: Maybe SampleCnt
+                                }
+
+-- fromPCMchunkGen :: (RelTime -> SampleCnt) -> AudioChunk
+-- fromPCMchunkGen gen = AudioChunk . Just $ gen . pcmSampleDuration
 
 
-type Audio = Timeline AudioChunk
+type Audio = Timeline Sampling AudioChunk
 
+
+fromPCM :: Audio -> Audio
+fromPCM = id
 
 
 silence :: Audio
-silence = Timeline $ \_ _ _ -> TimeRendering
-                                  (repeat $ AudioChunk Nothing)
-                                  (repeat $ AudioChunk Nothing)
+silence = Timeline $ \δt _ tpre -> TimePresentation silentChunks (ceiling $ tpre %/% δt)
+ where silentChunks = TimeRendering $ \ _ -> (AudioChunk Nothing, silentChunks)
 
 
 data AntiAliasStrategy = NoAntiAliasing {-
@@ -71,42 +78,50 @@ data AntiAliasStrategy = NoAntiAliasing {-
 
 
 audioFn :: AntiAliasStrategy -> (Timecode -> AudioSample) -> Audio
-audioFn NoAntiAliasing f = Timeline $ \δt t₀ tpre ->
-   let chunkGen tᵢ δs = VU.generate (floor $ δt %/% δs)
-                                          ( \i -> f(tᵢ @+% δs %* i) )
-   in  TimeRendering
-        { timeRenderedChunks = [ wrap $ chunkGen tᵢ | tᵢ <- iterate(@+% δt) t₀ ]
-        , preloadChunks = [ wrap $ chunkGen tᵢ | tᵢ <- take(ceiling $ tpre %/% δt)
-                                                         $ iterate(@-% δt) (t₀@-% δt) ] }
- where wrap = AudioChunk . Just . fromPCMchunkGen
+audioFn NoAntiAliasing f = fromPCM $ Timeline build
+ where build δt t₀ tpre
+          = TimePresentation ( chunkGen $ t₀ @-% nPreload *% δt )
+                             nPreload
+        where chunkGen tᵢ = TimeRendering $ \(PCM δs)
+                              -> ( AudioChunk . Just $ SampleCnt
+                                       (PCM δs)
+                                       ( VU.generate (floor $ δt %/% δs)
+                                                     ( \i -> f(tᵢ @+% δs %* i) ) )
+                                 , chunkGen (tᵢ @+% δt)                            )
+              nPreload
+                | tpre>=noTime  = ceiling $ tpre %/% δt
+                | otherwise     = error "Negative preload time requested for audioFn."
 
 
 instance Chunky AudioChunk where
-  switchOvr _ (AudioChunk Nothing) (AudioChunk Nothing)
+  switchOvr t (AudioChunk Nothing) (AudioChunk Nothing)
      = AudioChunk Nothing
   switchOvr t (AudioChunk cr₁) (AudioChunk cr₂)
      = AudioChunk $ Just crᵣ
-    where crᵣ sl@(PCM rate) = case cr₂ of
-                Just arr₂ -> lslice VU.++ rslice
-                     where lslice = case cr₁ of
-                             Just arr₁ -> VU.take lsples $ arr₁ sl
-                             Nothing   -> VU.replicate lsples 0
-                           rslice = VU.drop lsples $ arr₂ sl
-                Nothing -> lslice VU.++ rslice 
-                     where lslice = VU.take lsples arr₁
-                           arr₁ = fromJust cr₁ sl  -- cr₁ can't be Nothing here, because of the first patter for switchOvr
-                           rslice =  VU.replicate (VU.length arr₁ - lsples) 0
-            where lsples = floor $ t %/% rate
+    where crᵣ = case cr₂ of
+                 Just (SampleCnt sl@(PCM δs) arr₂)
+                   -> SampleCnt sl $ lslice VU.++ rslice
+                      where lslice = case cr₁ of
+                              Just (SampleCnt _ arr₁)
+                                        -> VU.take lsples $ arr₁
+                              Nothing   -> VU.replicate lsples 0
+                            rslice = VU.drop lsples $ arr₂
+                            lsples = floor $ t %/% δs
+                 Nothing  
+                   -> SampleCnt sl $ lslice VU.++ rslice 
+                      where lslice = VU.take lsples arr₁
+                            (SampleCnt sl@(PCM δs) arr₁) = fromJust cr₁  -- cr₁ can't be Nothing here, because of the first patter for switchOvr
+                            rslice =  VU.replicate (VU.length arr₁ - lsples) 0
+                            lsples = floor $ t %/% δs
 
 
 instance Mixable AudioChunk where
   mixChunks chunks = AudioChunk mix
     where mix = foldl' combiner Nothing $ map renderAudioChunk chunks
-          combiner Nothing Nothing = Nothing
-          combiner (Just chnk) Nothing = Just chnk
-          combiner Nothing (Just chnk) = Just chnk
-          combiner (Just chnk₁) (Just chnk₂)
-             = Just $ \sl-> VU.zipWith(+) (chnk₁ sl) (chnk₂ sl)
+          combiner = maybeCombine
+                      ( \(SampleCnt sl chnk₁)
+                         (SampleCnt sl' chnk₂)   -- assert(sl==sl')
+                        -> SampleCnt sl $ VU.zipWith(+) chnk₁ chnk₂ )
 --     where mix = foldl (VU.zipWith(+)) Nothing neChunks
 --           neChunks = catMaybes $ map renderAudioChunk chunks
 
