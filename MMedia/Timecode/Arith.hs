@@ -18,9 +18,13 @@ module MMedia.Timecode.Arith( module MMedia.Timecode
 import MMedia.Timecode
 import MMedia.Timecode.Internal
 
-infix 6 @-@                  -- there is always an absolute time at the side of an @,
-infixl 6 @+%, @-%            -- always a relative time at the side of a %
-infixl 6 %+%, %-%, ~+~, ~-~  -- always a frequency at the side of a ~
+-- | There is always an absolute time at the side of an @\@@,
+-- always a relative time at the side of a @%@,
+-- and always a frequency at the side of a @~@.
+
+infix 6 @-@                
+infixl 6 @+%, @-%           
+infixl 6 %+%, %-%, ~+~, ~-~ 
 infixr 6 %+@
 infix 7 /%, %/%, /~, ~/~, ~*%, %*~
 infixl 7 %*, %/, ~*

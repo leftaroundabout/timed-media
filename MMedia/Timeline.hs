@@ -141,11 +141,14 @@ switchAt tx (Timeline line₁) (Timeline line₂) = Timeline result
         where switched = takenChunksThenOvrlap (lhsChunks+nPreload) 1
                                 (const $ switchOvr (tx @-@ tx')) llhs rrhs
               TimePresentation llhs nPreload = line₁ δt t₀   tpre
-              TimePresentation rhs nPreloadr = line₂ δt tx'' (tx'' @-@ tx)
+              TimePresentation rhs nPreloadr = line₂ δt tx'' tprer
               rrhs = dropChunks (nPreloadr - 1) rhs
               lhsChunks = floor $ (tx @-@ t₀) %/% δt
               tx' = t₀ @+% lhsChunks *% δt  -- start time of the overlap-chunk
               tx'' = tx' @+% δt             -- end time   〃  〃      〃
+              tprer = max ε $ tx'' @-@ tx
+               where ε = δt %/ 1000
+
 
 
 delay :: RelTime -> Timeline p c -> Timeline p c
