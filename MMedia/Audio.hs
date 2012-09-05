@@ -11,10 +11,11 @@
 module MMedia.Audio( module MMedia.Timeline
                    , AudioSample
                    , SampleDuration
+                   , SampleArray
                    , SampleCnt(SampleCnt, sampleCntSampling, getSampleCnt)
                    , Sampling(PCM, pcmSampleDuration)
                    , AudioChunk(AudioChunk, renderAudioChunk)
-                   , Audio, fromPCM
+                   , AudioRendering, Audio, fromPCM
                    , silence
                    , AntiAliasStrategy(NoAntiAliasing)
                    , audioFn
@@ -42,8 +43,10 @@ type SampleDuration = RelTime
 data Sampling = PCM { pcmSampleDuration :: SampleDuration }  -- inverse sample rate
 
 
+type SampleArray = VU.Vector AudioSample
+
 data SampleCnt = SampleCnt { sampleCntSampling :: Sampling
-                           , getSampleCnt :: VU.Vector AudioSample }
+                           , getSampleCnt :: SampleArray   }
 
 
 newtype AudioChunk = AudioChunk { -- aChunkLength :: RelTime
@@ -55,6 +58,7 @@ newtype AudioChunk = AudioChunk { -- aChunkLength :: RelTime
 
 
 type Audio = Timeline Sampling AudioChunk
+type AudioRendering = TimeRendering Sampling AudioChunk
 
 
 fromPCM :: Audio -> Audio

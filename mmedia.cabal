@@ -12,5 +12,6 @@ Library
   Build-Depends:     base >= 3, bytestring, binary, process, vector
   Exposed-modules:   MMedia.Timeline MMedia.Timecode MMedia.Timecode.Arith
                      MMedia.Audio MMedia.Audio.Example MMedia.Audio.ALSAPlay
+                     MMedia.Audio.FX.Filter.SimpleIIR
   Other-modules:     MMedia.Timecode.Internal MMedia.MiscUtil.Data
   ghc-options:       -O2 -optc-ffast-math -optc-march=native
