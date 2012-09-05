@@ -10,14 +10,26 @@
 -- Portability : portable
 -- 
 -- 
+-- Static IIRs (/infinite impulse response/, although they are actually
+-- assumed to relaxate – save for an insignificant difference – in a finite
+-- time interval, so the infinite response may be trimmed down to a finite one)
+-- can be used to implement most commonly used filters, such as high\/low\/bandpass,
+-- notches, band boosts etc.. They work by iterating a recurrence relation
+-- with some internal accumulated state over PCM-sampled audio data.
+-- 'staticIIR' is thus basically an accelerated 'mapAccumL' over audio samples.
 
 
-module MMedia.Audio.FX.Filter.SimpleIIR( IIRGenStatic( IIRGenStatic
+module MMedia.Audio.FX.Filter.SimpleIIR( -- * Generic IIR filter generation
+                                         IIRGenStatic( IIRGenStatic
                                                      , statIIR_RelaxTime
                                                      , statIIR_ImpulseFollower
                                                      , statIIR_CarryInit       )
                                        , staticIIR
-                                       , lpOrder1
+                                       , -- * Basic filter types
+                                         lpOrder1
+                                       , lpOrder2
+                                       , lpOrder2Nonlinear
+                                       , lpOrder2Saturating
                                        ) where
 
 
@@ -37,21 +49,14 @@ import Control.Monad
 import Data.Complex
 
 
--- | Static IIRs (/infinite impulse response/, although they are actually
---   assumed to relaxate – save for an insignificant difference – in a finite
---   time interval, so the infinite response may be trimmed down to a finite one)
---   can be used to implement most commonly used filters, such as high\/low\/bandpass,
---   notches, band boosts etc.. They work by iterating a recurrence relation
---   with some internal accumulated state over PCM-sampled audio data.
---   'staticIIR' is thus basically an accelerated 'mapAccumL' over audio samples.
 
 data IIRGenStatic carry
-   = IIRGenStatic { statIIR_RelaxTime :: RelTime     -- ^ how long the system needs to run until the deviation to the state if it had always been running becomes insignificant.
+   = IIRGenStatic { statIIR_RelaxTime :: RelTime     -- ^ how long the system needs to run until it behaves as if it had run /always/, i.e. until the deviation to that state becomes insignificant.
                   , statIIR_ImpulseFollower ::
                        ( SampleDuration ->
                            carry -> AudioSample -> (carry, AudioSample) )
-                      -- ^ the impulse-sample-follower. Should be properly curried, i.e. the more expensive calculations should be carried out as soon as the 'SampleDuration' argument is received.
-                  , statIIR_CarryInit :: carry   -- ^ the IIRs state should be initialised with the \"silence-state\", so
+                      -- ^ the impulse-sample-follower. Should be properly curried, i.e. as much as possible of the calculations should be carried out as soon as the 'SampleDuration' argument is received, since this value will be used for a whole chunk.
+                  , statIIR_CarryInit :: carry   -- ^ the IIRs state should be initialised with the \"silence-state\", since that is also what will be assumed for \"silent audio chunks\".
                   }
 
 
@@ -193,7 +198,7 @@ infixl 7 ⋅
 (⋅) :: Fractional a => a->a->a; (⋅) = (*)
 
 
--- | A simple first-order lowpass filter: 6 dB per octave rolloff for ν≫νᵥ,
+-- | A simple first-order lowpass filter: 6 dB per octave rolloff for ν ≫ νᵥ,
 --   where νᵥ is the cutoff frequency, i.e. the frequency at which @'lpOrder1' νᵥ aud@
 --   is by 3 dB quieter than @aud@ (in other words, the amplitude is there scaled
 --   by a factor of √½).
@@ -207,13 +212,14 @@ lpOrder1 νᵥ = staticIIR $ IIRGenStatic tᵣ fᵢ c₀
                where yⱼ = yⱼ₁ + λ ⋅ (xⱼ - yⱼ₁)
               λ = realToFrac . lp1stCoeff $ 2*pi * (νᵥ ~*% δs)
 
+-- -- -- -- DERIVATION OF THE MATHEMATICS OF THIS FILTER -- -- -- --
 -- Differential equation for continuous-time 1st-order low pass:
 -- ∂y/∂t = -λ ⋅ (y(t) - x(t))
 -- ◁▭▷ (iω + λ) ⋅ y(ω) = λ ⋅ x(ω)
 -- |y(ωₑ)| =! |x(ωₑ)|/√2
 -- ◁▭▷ ωₑ² + λ² = 2 ⋅ λ²
 -- ◁▭▷ ωₑ = λ ◁▭▷ λ = 2πνₑ
-
+-- 
 -- Discrete version (sample rate 1):   ( One would normally just use the bilinear
 --                                       transform here; this is a different (and
 --                                       AFAICS more accurate) approach           )
@@ -250,5 +256,49 @@ lp1stCoeff ω = realPart $ λ !! 3
 
 
 
+-- | A second-order lowpass filter (state variable filter): 12 dB per octave
+-- rolloff for ν ≫ νᵥ; at νᵥ the resonance is determined by the gain parameter,
+-- which must be in range ]½ .. ∞[.
+
+-- This one follows the normal derivation with bilinear transform.
+
+lpOrder2 :: Gain -> Frequency -> Audio -> Audio
+lpOrder2 q νᵥ = staticIIR $ IIRGenStatic tᵣ fᵢ c₀
+ where tᵣ = (8 * q) /~ νᵥ
+       qinv = 1/q
+       c₀ = (0 :: AudioSample, 0 :: AudioSample)
+       fᵢ δs = f
+        where f (wⱼ₁,yⱼ₁) xⱼ = ((wⱼ, yⱼ), yⱼ)
+               where yⱼ = yⱼ₁ + λ ⋅ wⱼ₁
+                     wⱼ = λ ⋅ sⱼ + wⱼ₁
+                     sⱼ = xⱼ - qinv * wⱼ₁ - yⱼ
+                     
+              λ = 2 * sin(pi * realToFrac(νᵥ ~*% δs))
 
 
+-- | State-variable filter like 'lpOrder2', but allows injection of a nonlinear
+-- \"saturator function\" into the resonance part of the circuit. Careful, this may easily make the filter unstable!
+
+lpOrder2Nonlinear :: Gain -> (AudioSample->AudioSample) -> Frequency -> Audio -> Audio
+lpOrder2Nonlinear q satfn νᵥ = staticIIR $ IIRGenStatic tᵣ fᵢ c₀
+ where tᵣ = (8 * q) /~ νᵥ
+       qinv = 1/q
+       c₀ = (0 :: AudioSample, 0 :: AudioSample)
+       fᵢ δs = f
+        where f (wⱼ₁,yⱼ₁) xⱼ = ((wⱼ, yⱼ), yⱼ)
+               where yⱼ = yⱼ₁ + λ ⋅ wⱼ₁
+                     wⱼ = satfn $ λ ⋅ sⱼ + wⱼ₁
+                     sⱼ = xⱼ - qinv * wⱼ₁ - yⱼ
+                     
+              λ = 2 * sin(pi * realToFrac(νᵥ ~*% δs))
+
+
+-- | 'lpOrder2Nonlinear' with a saturation function that softly clips (symmetrically)
+-- peaks at 0 dB.
+
+lpOrder2Saturating :: Gain -> Frequency -> Audio -> Audio
+lpOrder2Saturating q = lpOrder2Nonlinear q satfn
+ where satfn x
+        | x>2        = 1
+        | x<(-2)     = -1
+        | otherwise  = x / (1 + (x/2)^2)
