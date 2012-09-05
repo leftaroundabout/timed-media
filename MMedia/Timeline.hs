@@ -19,19 +19,33 @@
 -- tradeoffs as fits for each application.
 -- Furthermore, some custom parameters (such as audio sample rate or video frame
 -- rate and resolution) may be specified for the rendering of each chunk, so
--- the quality of rendering may be adjusted on-the-fly to fit CPU availability.
+-- the quality of rendering may be adjusted on-the-fly to fit CPU availability
+-- (mainly intended for computionally expensive HD-video editing).
 
-module MMedia.Timeline ( module MMedia.Timecode
-                       , Timeline(Timeline, runTimeline), staticRenderTimeline
-                       , TimeRendering(TimeRendering, runTimeRender)
+module MMedia.Timeline ( -- * Imports
+                         module MMedia.Timecode
+                       , -- * Timeline data type
+                         Timeline(Timeline, runTimeline), staticRenderTimeline
+                       , -- * Proxy types used to implement rendering of timelines
+                         TimeRendering(TimeRendering, runTimeRender)
                        , TimePresentation(TimePresentation, getTimePresentation, nPreloaded)
-                       , Chunky(switchOvr)
-                       , switchAt, delay, timeChain
-                       , CrossRatio, lhsOnly, rhsOnly
+                       , -- * General, chunk-agnostic operations
+                         delay
+                       , -- * Chunk-based editing of timelines
+                         cmap
+                       , -- * Classes of timeline chunks, to support various common operations
+                         -- ** \"Cuttable\"
+                         Chunky(switchOvr)
+                       , switchAt, timeChain
+                       , -- ** Chunks that allow \"crossover\" transitions
+                         CrossRatio, lhsOnly, rhsOnly
                        , Crossable(crossOvr)
                        , XOverForm, xOverAt
-                       , Mixable(mixChunks)
+                       , -- ** Chunks that can be mixed commutatively, like audio
+                         Mixable(mixChunks)
                        , mix
+                       , -- ** Chunks that can be gain-adjusted or α-scaled
+                         Gain, Gainable(gainChunk), gain
                        ) where
 
 
@@ -116,10 +130,24 @@ staticRenderTimeline δt t₀ ps (Timeline line) = drop nPre $ unfold rend
         where (chunk,rest) = r ps
 
 
--- instance Functor Timeline where
---   fmap f (Timeline line) = Timeline $ \δt -> map f . line δt
+
+-- | 'cmap' is equivalent to @fmap@, mapping timeline chunks.
+-- 
 -- Timeline should actually be a kind of functor, but not so much for chunks as for samples / frames.
 -- Something like that might be doable with type families, but not for the Prelude Functor type class.
+-- 
+-- @
+--   instance Functor Timeline where
+--     fmap = cmap  ??
+-- @
+
+cmap :: (c->c') -> Timeline p c -> Timeline p c'
+cmap f (Timeline line) = Timeline $ \δt t₀ ps
+           -> let (TimePresentation (TimeRendering rend) nPreload) = line δt t₀ ps
+              in  TimePresentation (TimeRendering $ rmap rend) nPreload
+ where rmap rend cgp = let (chnk, TimeRendering cont) = rend cgp
+                       in  (f chnk, TimeRendering $ rmap cont)
+
 
 
 
@@ -132,8 +160,10 @@ class Chunky chnk where
 
 
 
-
-switchAt :: Chunky c => Timecode -> Timeline p c -> Timeline p c -> Timeline p c
+switchAt :: Chunky c => Timecode      -- ^ \"Switching time\" /tₓ/
+                     -> Timeline p c  -- ^ \"Early\" timeline ℓ₁
+                     -> Timeline p c  -- ^ \"Early\" timeline ℓ₂
+                     -> Timeline p c  -- ^ Timeline that is equivalent to ℓ₁ for /t/ \< /tₓ/ and equivalent to ℓ₂ for /t/ \> /tₓ/.
 switchAt tx (Timeline line₁) (Timeline line₂) = Timeline result
  where result δt t₀ tpre
          | t₀@-%tpre `laterThan` tx  = line₂ δt t₀ tpre
@@ -214,3 +244,12 @@ mix lns = Timeline result
                mixdown rs = TimeRendering $ \ps
                                -> (\(chunks, conts) -> (mixChunks chunks, mixdown conts))
                                       . unzip $ map(($ps) . runTimeRender) rs
+
+
+type Gain = Float
+
+class Gainable chnk where
+  gainChunk :: Gain -> chnk -> chnk
+
+gain :: Gainable c => Gain -> Timeline p c -> Timeline p c
+gain = cmap . gainChunk

@@ -130,3 +130,8 @@ instance Mixable AudioChunk where
 --           neChunks = catMaybes $ map renderAudioChunk chunks
 
 
+instance Gainable AudioChunk where
+  gainChunk g (AudioChunk Nothing) = AudioChunk Nothing
+  gainChunk g (AudioChunk (Just (SampleCnt spling source)))
+            = (AudioChunk (Just (SampleCnt spling gained)))
+   where gained = VU.map (*g) source
