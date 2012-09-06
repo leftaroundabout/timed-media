@@ -32,7 +32,7 @@ module MMedia.Timeline ( -- * Imports
                        , -- * General, chunk-agnostic operations
                          delay
                        , -- * Chunk-based editing of timelines
-                         cmap
+                         cmap, cmap'
                        , -- * Classes of timeline chunks, to support various common operations
                          -- ** \"Cuttable\"
                          Chunky(switchOvr)
@@ -148,6 +148,17 @@ cmap f (Timeline line) = Timeline $ \δt t₀ ps
  where rmap rend cgp = let (chnk, TimeRendering cont) = rend cgp
                        in  (f chnk, TimeRendering $ rmap cont)
 
+-- | 'cmap\'' maps both chunk-generation-parameters and chunks themselves.
+-- @'cmap' f ≡ 'cmap\'' (\\p -> (p, f))@.
+-- Note that the generation parameters need to be mapped in the /opposite/ direction.
+
+cmap' :: (p' -> (p, c->c')) -> Timeline p c -> Timeline p' c'
+cmap' g (Timeline line) = Timeline $ \δt t₀ ps
+           -> let (TimePresentation (TimeRendering rend) nPreload) = line δt t₀ ps
+              in  TimePresentation (TimeRendering $ rmap rend) nPreload
+ where rmap rend cgp = let (cgp', f) = g cgp
+                           (chnk, TimeRendering cont) = rend cgp'
+                       in  (f chnk, TimeRendering $ rmap cont)
 
 
 

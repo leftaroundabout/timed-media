@@ -260,7 +260,8 @@ lp1stCoeff ω = realPart $ λ !! 3
 -- rolloff for ν ≫ νᵥ; at νᵥ the resonance is determined by the gain parameter,
 -- which must be in range ]½ .. ∞[.
 
--- This one follows the normal derivation with bilinear transform.
+-- This one follows the normal derivation with bilinear transform, but something
+-- is wrong apparently: these filters to not behave invariant under resampling.
 
 lpOrder2 :: Gain -> Frequency -> Audio -> Audio
 lpOrder2 q νᵥ = staticIIR $ IIRGenStatic tᵣ fᵢ c₀

@@ -1,6 +1,6 @@
 Name:                mmedia
 Version:             0.1
-Description:         Chunk-based multimedia handling, for use in DAWs/NLEs
+Synopsis:            Chunk-based multimedia handling, for use in DAWs/NLEs
 License:             GPL-3
 License-file:        COPYING
 Author:              Justus Sagemüller
@@ -14,4 +14,4 @@ Library
                      MMedia.Audio MMedia.Audio.Example MMedia.Audio.ALSAPlay
                      MMedia.Audio.FX.Filter.SimpleIIR
   Other-modules:     MMedia.Timecode.Internal MMedia.MiscUtil.Data
-  ghc-options:       -O2 -optc-ffast-math -optc-march=native
+  ghc-options:       -O2 -optc-O2 -optc-ffast-math -optc-march=native

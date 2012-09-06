@@ -8,9 +8,14 @@
 -- Portability : portable
 -- 
 -- 
+-- Simple arithmetic operations, @+@, @-@, @*@, @/@ have their usual meaning.
+-- There is always an absolute time at the side of an @\@@,
+-- always a relative time at the side of a @%@,
+-- and always a frequency at the side of a @~@.
+
 module MMedia.Timecode.Arith( module MMedia.Timecode 
                             , (@-@), (@+%), (@-%), (%+%), (%-%)
-                            , (~+~), (~-~), (%+@), (/%), (%/%), (/~), (~/~)
+                            , (~+~), (~-~), (%+@), (/%), (%/%), (/~), (~/~), (~/)
                             , (~*%), (%*~), (%*), (%/), (~*), (*%), (*~)
                             , earlierThan, laterThan
                             )where
@@ -18,9 +23,6 @@ module MMedia.Timecode.Arith( module MMedia.Timecode
 import MMedia.Timecode
 import MMedia.Timecode.Internal
 
--- | There is always an absolute time at the side of an @\@@,
--- always a relative time at the side of a @%@,
--- and always a frequency at the side of a @~@.
 
 infix 6 @-@                
 infixl 6 @+%, @-%           
@@ -54,9 +56,11 @@ n *% RelTime δt = RelTime $ realToFrac n * δt
 RelTime δ₁ %/% RelTime δ₂ = realToFrac $ δ₁ / δ₂
 
 (~*) :: Real i => Frequency -> i -> Frequency
+(~/) :: Real i => Frequency -> i -> Frequency
 (*~) :: Real i => i -> Frequency -> Frequency
 (~/~) :: RealFrac q => Frequency -> Frequency -> q
 Frequency ν ~* n = Frequency $ ν * realToFrac n
+Frequency ν ~/ n = Frequency $ ν / realToFrac n
 n *~ Frequency ν = Frequency $ realToFrac n * ν
 Frequency ν₁ ~/~ Frequency ν₂ = realToFrac $ ν₁ / ν₂
 
@@ -70,6 +74,8 @@ Frequency ν ~*% RelTime τ = realToFrac $ ν * τ
 RelTime τ %*~ Frequency ν = realToFrac $ τ * ν
 
 
+-- | 'laterThan' and 'earlierThan' are basically @\>@ and @\<@ for 'Timecode'.
+-- ('RelTime' has an actual @Ord@ instance.)
 infix 4 `laterThan`, `earlierThan`
 laterThan, earlierThan :: Timecode -> Timecode -> Bool
 Timecode t₁ `laterThan` Timecode t₂ = t₁ > t₂
