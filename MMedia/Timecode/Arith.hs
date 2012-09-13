@@ -32,11 +32,33 @@ infix 7 /%, %/%, /~, ~/~, ~*%, %*~
 infixl 7 %*, %/, ~*
 infixr 7 *%, *~
 
+{-# INLINE (@-@) #-}
+{-# INLINE (@+%) #-}
+{-# INLINE (@-%) #-}
+{-# INLINE (%+%) #-}
+{-# INLINE (%-%) #-}
+{-# INLINE (~+~) #-}
+{-# INLINE (~-~) #-}
+{-# INLINE (%+@) #-}
+{-# INLINE (/%) #-}
+{-# INLINE (%/%) #-}
+{-# INLINE (/~) #-}
+{-# INLINE (~/~) #-}
+{-# INLINE (~/) #-}
+{-# INLINE (~*%) #-}
+{-# INLINE (%*~) #-}
+{-# INLINE (%*) #-}
+{-# INLINE (%/) #-}
+{-# INLINE (~*) #-}
+{-# INLINE (*%) #-}
+{-# INLINE (*~) #-}
+
 (@-@) :: Timecode -> Timecode -> RelTime
 (%+@) :: RelTime -> Timecode -> Timecode
 (@+%), (@-%) :: Timecode -> RelTime -> Timecode
 (%-%), (%+%) :: RelTime -> RelTime -> RelTime
 (~-~), (~+~) :: Frequency -> Frequency -> Frequency
+
 
 Timecode t₁ @-@ Timecode t₂ = RelTime $ t₁ - t₂
 RelTime δt  %+@ Timecode t = Timecode $ δt + t
@@ -55,6 +77,13 @@ RelTime δt %/ n = RelTime $ δt / realToFrac n
 n *% RelTime δt = RelTime $ realToFrac n * δt
 RelTime δ₁ %/% RelTime δ₂ = realToFrac $ δ₁ / δ₂
 
+{-# SPECIALISE (%*) :: RelTime -> Double -> RelTime #-}
+{-# SPECIALISE (%/) :: RelTime -> Double -> RelTime #-}
+{-# SPECIALISE (%*) :: RelTime -> Int -> RelTime #-}
+{-# SPECIALISE (*%) :: Double -> RelTime -> RelTime #-}
+{-# SPECIALISE (*%) :: Int -> RelTime -> RelTime #-}
+{-# SPECIALISE (%/%) :: RelTime -> RelTime -> Double #-}
+
 (~*) :: Real i => Frequency -> i -> Frequency
 (~/) :: Real i => Frequency -> i -> Frequency
 (*~) :: Real i => i -> Frequency -> Frequency
@@ -64,6 +93,14 @@ Frequency ν ~/ n = Frequency $ ν / realToFrac n
 n *~ Frequency ν = Frequency $ realToFrac n * ν
 Frequency ν₁ ~/~ Frequency ν₂ = realToFrac $ ν₁ / ν₂
 
+{-# SPECIALISE (~*) :: Frequency -> Double -> Frequency #-}
+{-# SPECIALISE (~/) :: Frequency -> Double -> Frequency #-}
+{-# SPECIALISE (~*) :: Frequency -> Int -> Frequency #-}
+{-# SPECIALISE (~/) :: Frequency -> Int -> Frequency #-}
+{-# SPECIALISE (*~) :: Double -> Frequency -> Frequency #-}
+{-# SPECIALISE (*~) :: Int -> Frequency -> Frequency #-}
+{-# SPECIALISE (~/~) :: Frequency -> Frequency -> Double #-}
+
 (/%) :: Real i => i -> RelTime -> Frequency
 (/~) :: Real i => i -> Frequency -> RelTime
 (~*%) :: RealFrac q => Frequency -> RelTime -> q
@@ -72,6 +109,13 @@ n /% RelTime τ = Frequency $ realToFrac n / τ
 n /~ Frequency ν = RelTime $ realToFrac n / ν
 Frequency ν ~*% RelTime τ = realToFrac $ ν * τ
 RelTime τ %*~ Frequency ν = realToFrac $ τ * ν
+
+{-# SPECIALISE (/%) :: Double -> RelTime -> Frequency #-}
+{-# SPECIALISE (/%) :: Int -> RelTime -> Frequency #-}
+{-# SPECIALISE (/~) :: Double -> Frequency -> RelTime #-}
+{-# SPECIALISE (/~) :: Int -> Frequency -> RelTime #-}
+{-# SPECIALISE (~*%) :: Frequency -> RelTime -> Double #-}
+{-# SPECIALISE (%*~) :: RelTime -> Frequency -> Double #-}
 
 
 -- | 'laterThan' and 'earlierThan' are basically @\>@ and @\<@ for 'Timecode'.

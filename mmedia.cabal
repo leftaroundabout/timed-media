@@ -32,11 +32,11 @@ Description:
     one output value but a whole range (every filter and many other effects as
     well are some kind of /convolution/). Calculating all of these over and over
     again becomes infeasible very quickly. 'MMedia.Timeline' solves the problem by
-    yielding not just a single time-value when requested but a continuation for
-    calculating subsequent values as well, with reasonable efficiency. Such a
+    yielding not just a single time-value when requested, but also a continuation for
+    calculating subsequent values with reasonable efficiency. Such a
     time-rendering is in some ways like the lazy lists used in the @dsp@ package,
     but here not just samples or video frames are yielded in each continuation step
-    but whole /stricly evaluated chunks/, which is like the buffers all common audio
+    but whole /strictly evaluated chunks/, which is like the buffers all common audio
     programs also use. This improves CPU cache usage and also gives more flexibility:
     while the length of the chunks can stay fixed to ensure proper alignment, parameters
     such as sample rate or frame resolution stay in the low-level rendering domain

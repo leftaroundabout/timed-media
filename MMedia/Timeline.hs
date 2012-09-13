@@ -107,6 +107,13 @@ dropChunks n r = TimeRendering $ \ ps -> drop' n r ps
                                  else (chunk, r')
 
 
+-- | The rendering of a timelime must contain enough \"preloaded\" chunks to
+-- include all of the requested preloading time. How many chunks these are
+-- exactly is currently up to the renderer.
+
+-- Perhaps it would be more straightforward to just require it to be
+-- always @'ceiling'(tPre %/% δt)@?
+
 data TimePresentation chnkGenParams chnk
    = TimePresentation { getTimePresentation :: TimeRendering chnkGenParams chnk
                       , nPreloaded :: Int  -- ^ Number of chunks before the specified replay-starting time of the timeline
@@ -142,8 +149,8 @@ staticRenderTimeline δt t₀ ps (Timeline line) = drop nPre $ unfold rend
 -- @
 
 cmap :: (c->c') -> Timeline p c -> Timeline p c'
-cmap f (Timeline line) = Timeline $ \δt t₀ ps
-           -> let (TimePresentation (TimeRendering rend) nPreload) = line δt t₀ ps
+cmap f (Timeline line) = Timeline $ \δt t₀ tpre
+           -> let (TimePresentation (TimeRendering rend) nPreload) = line δt t₀ tpre
               in  TimePresentation (TimeRendering $ rmap rend) nPreload
  where rmap rend cgp = let (chnk, TimeRendering cont) = rend cgp
                        in  (f chnk, TimeRendering $ rmap cont)
@@ -153,8 +160,8 @@ cmap f (Timeline line) = Timeline $ \δt t₀ ps
 -- Note that the generation parameters need to be mapped in the /opposite/ direction.
 
 cmap' :: (p' -> (p, c->c')) -> Timeline p c -> Timeline p' c'
-cmap' g (Timeline line) = Timeline $ \δt t₀ ps
-           -> let (TimePresentation (TimeRendering rend) nPreload) = line δt t₀ ps
+cmap' g (Timeline line) = Timeline $ \δt t₀ tpre
+           -> let (TimePresentation (TimeRendering rend) nPreload) = line δt t₀ tpre
               in  TimePresentation (TimeRendering $ rmap rend) nPreload
  where rmap rend cgp = let (cgp', f) = g cgp
                            (chnk, TimeRendering cont) = rend cgp'

@@ -119,6 +119,8 @@ staticIIR ( IIRGenStatic tᵣ fᵢ c₀ ) srcAudio = fromPCM $ Timeline fLine
                                      { sampleCntSampling = PCM δs
                                      , getSampleCnt = chunk       }
 
+{-# INLINE staticIIR #-}
+
 --                          let nSamples = (floor $ δt %/% δs)
 --                          result <- VM.new nSamples
 --                          carry <- newSTRef cr
@@ -278,7 +280,12 @@ lpOrder2 q νᵥ = staticIIR $ IIRGenStatic tᵣ fᵢ c₀
 
 
 -- | State-variable filter like 'lpOrder2', but allows injection of a nonlinear
--- \"saturator function\" into the resonance part of the circuit. Careful, this may easily make the filter unstable!
+-- \"saturator function\" into the resonance part of the circuit. Careful, this may
+-- easily make the filter unstable! – suitable functions should approach identity
+-- for small values and have derivative ∊ [0..1] everywhere.
+-- Also, at the moment it only works properly when using high oversampling, as
+-- the implementation is taken from the linear version of the filter,
+-- which is only tuned correctly without the nonlinear function.
 
 lpOrder2Nonlinear :: Gain -> (AudioSample->AudioSample) -> Frequency -> Audio -> Audio
 lpOrder2Nonlinear q satfn νᵥ = staticIIR $ IIRGenStatic tᵣ fᵢ c₀

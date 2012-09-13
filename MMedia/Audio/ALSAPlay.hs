@@ -11,6 +11,7 @@
 
 module MMedia.Audio.ALSAPlay( module MMedia.Audio
                             , aplaySimple
+                            , aplaySimpleLogged
                             ) where
 
 import MMedia.Timecode.Arith
@@ -33,11 +34,22 @@ import Control.Monad
 iChunkRate  = (1/10) *% oneSecond            -- chunk length
 iSampleRate = (1/44100) *% oneSecond    -- CDA-type sampling
 
+
 -- | Play a mono audio stream by piping it to aplay
 --   in 16 Bit, 44.1 kHz, in chunks of length 100 ms.
 aplaySimple :: Timecode -> Audio -> IO ()
-aplaySimple t₀ aud = do
-    (aplaySTDIn, _, _, aplayProc) <- runInteractiveCommand "aplay -f cd >/dev/null 2>/dev/null" -- tee aplyspleoutp.wvcd | 
+aplaySimple = pipePlay_CDQ "aplay -f cd >/dev/null 2>/dev/null" -- tee aplyspleoutp.wvcd | 
+
+
+-- | Like aplaySimple, but also writes the output to a binary log file.
+aplaySimpleLogged :: FilePath -> Timecode -> Audio -> IO ()
+aplaySimpleLogged logFile
+   = pipePlay_CDQ $ "tee "++logFile++ "| aplay -f cd >/dev/null 2>/dev/null"
+
+
+pipePlay_CDQ :: String -> Timecode -> Audio -> IO ()
+pipePlay_CDQ pipeCmp t₀ aud = do
+    (aplaySTDIn, _, _, aplayProc) <- runInteractiveCommand pipeCmp
     hSetBuffering aplaySTDIn $ BlockBuffering (Just 1024)
 
     forM_ ( staticRenderTimeline iChunkRate
@@ -56,3 +68,5 @@ aplaySimple t₀ aud = do
             $ BL.replicate (2 * 2 * round(iChunkRate%/%iSampleRate)) 0
 --        hFlush aplaySTDIn
      )
+
+
