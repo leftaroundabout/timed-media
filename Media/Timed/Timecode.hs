@@ -1,5 +1,5 @@
 -- |
--- Module      : MMedia.Timecode
+-- Module      : Media.Timed.Timecode
 -- Copyright   : (c) Justus Sagemüller 2012
 -- License     : GPL v3
 -- 
@@ -10,13 +10,13 @@
 -- 
 -- Absolute- and relative-time types, for handling these physical quantities
 -- in a way free of noncanonicalties, guaranteed by the type system. Calculations
--- can be done with the operations from "MMedia.Timecode.Arith".
+-- can be done with the operations from "Media.Timed.Timecode.Arith".
 
-module MMedia.Timecode ( Timecode(), timecode, timeDecode, RelTime(), Frequency(), seconds, hertzs
+module Media.Timed.Timecode ( Timecode(), timecode, timeDecode, RelTime(), Frequency(), seconds, hertzs
                        , noTime, oneSecond, oneHertz, timeZero
                        ) where
 
-import MMedia.Timecode.Internal
+import Media.Timed.Timecode.Internal
 import Data.Fixed
 
 import Numeric

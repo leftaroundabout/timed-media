@@ -1,5 +1,5 @@
 -- |
--- Module      : MMedia.Audio.ALSAPlay
+-- Module      : Media.Timed.Audio.ALSAPlay
 -- Copyright   : (c) Justus Sagemüller 2012
 -- License     : GPL v3
 -- 
@@ -9,13 +9,13 @@
 -- 
 -- 
 
-module MMedia.Audio.ALSAPlay( module MMedia.Audio
+module Media.Timed.Audio.ALSAPlay( module Media.Timed.Audio
                             , aplaySimple
                             , aplaySimpleLogged
                             ) where
 
-import MMedia.Timecode.Arith
-import MMedia.Audio
+import Media.Timed.Timecode.Arith
+import Media.Timed.Audio
 
 import System.IO
 import System.Process

@@ -1,10 +1,10 @@
-module MMedia.Audio.Example( module MMedia.Audio
-                           , module MMedia.Timecode.Arith
+module Media.Timed.Audio.Example( module Media.Timed.Audio
+                           , module Media.Timed.Timecode.Arith
                            , sineTest, sineDecaying, simpleDecayTone
                            ) where
 
-import MMedia.Timecode.Arith
-import MMedia.Audio
+import Media.Timed.Timecode.Arith
+import Media.Timed.Audio
 
 sineTest :: Frequency -> Audio
 sineTest ν = audioFn f

@@ -1,5 +1,5 @@
 -- |
--- Module      : MMedia.Audio
+-- Module      : Media.Timed.Audio
 -- Copyright   : (c) Justus Sagemüller 2012
 -- License     : GPL v3
 -- 
@@ -19,8 +19,8 @@
 -- /quality/) of audio they need.
 
 
-module MMedia.Audio( -- * Imports
-                     module MMedia.Timeline
+module Media.Timed.Audio( -- * Imports
+                     module Media.Timed.Timeline
                    , -- * Types
                      Audio
                    , AudioSample
@@ -40,10 +40,10 @@ module MMedia.Audio( -- * Imports
                    , audioFn
                    ) where
 
-import MMedia.Timecode.Arith
-import MMedia.Timeline
+import Media.Timed.Timecode.Arith
+import Media.Timed.Timeline
 
-import MMedia.MiscUtil.Data
+import Media.Timed.MiscUtil.Data
 
 import Data.List
 import Data.Maybe

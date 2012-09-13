@@ -1,5 +1,5 @@
 -- |
--- Module      : MMedia.Timeline
+-- Module      : Media.Timed.Timeline
 -- Copyright   : (c) Justus Sagemüller 2012
 -- License     : GPL v3
 -- 
@@ -22,8 +22,8 @@
 -- the quality of rendering may be adjusted on-the-fly to fit CPU availability
 -- (mainly intended for computionally expensive HD-video editing).
 
-module MMedia.Timeline ( -- * Imports
-                         module MMedia.Timecode
+module Media.Timed.Timeline ( -- * Imports
+                         module Media.Timed.Timecode
                        , -- * Timeline data type
                          Timeline(Timeline, runTimeline), staticRenderTimeline
                        , -- * Proxy types used to implement rendering of timelines
@@ -50,8 +50,8 @@ module MMedia.Timeline ( -- * Imports
 
 
 
-import MMedia.Timecode
-import MMedia.Timecode.Arith
+import Media.Timed.Timecode
+import Media.Timed.Timecode.Arith
 
 import Data.List
 

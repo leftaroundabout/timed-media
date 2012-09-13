@@ -1,4 +1,4 @@
-module MMedia.Timecode.Internal where
+module Media.Timed.Timecode.Internal where
 
 
 newtype Timecode = Timecode { getTimecode :: Double } deriving (Eq)

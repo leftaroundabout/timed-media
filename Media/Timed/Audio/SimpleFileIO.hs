@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 -- |
--- Module      : MMedia.Audio.SimpleFileIO
+-- Module      : Media.Timed.Audio.SimpleFileIO
 -- Copyright   : (c) Justus Sagemüller 2012
 -- License     : GPL v3
 -- 
@@ -27,13 +27,13 @@
 -- but obviously rather bad for memory consumption and loading-times.
 
 
-module MMedia.Audio.SimpleFileIO( module MMedia.Audio
+module Media.Timed.Audio.SimpleFileIO( module Media.Timed.Audio
                                 , loadWAVfileChan
                                 , FileLoadFailure (..)
                                 ) where
 
-import MMedia.Audio
-import MMedia.Timecode.Arith
+import Media.Timed.Audio
+import Media.Timed.Timecode.Arith
 
 import qualified Data.ByteString.Lazy as BL
 import Data.ByteString.Lazy.Char8()

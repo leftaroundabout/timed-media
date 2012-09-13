@@ -1,7 +1,7 @@
-import MMedia.Timecode.Arith
-import MMedia.Audio.Example
-import MMedia.Audio.ALSAPlay
-import MMedia.Audio.FX.Filter.SimpleIIR
+import Media.Timed.Timecode.Arith
+import Media.Timed.Audio.Example
+import Media.Timed.Audio.ALSAPlay
+import Media.Timed.Audio.FX.Filter.SimpleIIR
 
 main = aplaySimple (timecode $ 0:0:[0]) . gain(1/4)
            $ mix [ upcLp $ melodyLoop

@@ -1,5 +1,5 @@
-import MMedia.Timecode.Arith
-import MMedia.Audio.ALSAPlay
+import Media.Timed.Timecode.Arith
+import Media.Timed.Audio.ALSAPlay
 
 main = aplaySimple (timecode $ 0:0:[0]) $ audioFn NoAntiAliasing f
   where f t = wfn ω / 2 + wfn(5/4 *ω) / 3

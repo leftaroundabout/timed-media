@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-import MMedia.Timeline
-import MMedia.Timecode.Arith
+import Media.Timed.Timeline
+import Media.Timed.Timecode.Arith
 
 
 newtype TlChunkTest a = TlChunkTest [(Timecode,a)]

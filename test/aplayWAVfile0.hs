@@ -1,6 +1,6 @@
-import MMedia.Timecode.Arith
-import MMedia.Audio.SimpleFileIO
-import MMedia.Audio.ALSAPlay
+import Media.Timed.Timecode.Arith
+import Media.Timed.Audio.SimpleFileIO
+import Media.Timed.Audio.ALSAPlay
 
 import System.Environment
 

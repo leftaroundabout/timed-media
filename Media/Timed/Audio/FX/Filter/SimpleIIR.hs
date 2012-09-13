@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE Rank2Types #-}
 -- |
--- Module      : MMedia.Audio.FX.Filter.SimpleIIR
+-- Module      : Media.Timed.Audio.FX.Filter.SimpleIIR
 -- Copyright   : (c) Justus Sagemüller 2012
 -- License     : GPL v3
 -- 
@@ -19,7 +19,7 @@
 -- 'staticIIR' is thus basically an accelerated 'mapAccumL' over audio samples.
 
 
-module MMedia.Audio.FX.Filter.SimpleIIR( -- * Generic IIR filter generation
+module Media.Timed.Audio.FX.Filter.SimpleIIR( -- * Generic IIR filter generation
                                          IIRGenStatic( IIRGenStatic
                                                      , statIIR_RelaxTime
                                                      , statIIR_ImpulseFollower
@@ -33,9 +33,9 @@ module MMedia.Audio.FX.Filter.SimpleIIR( -- * Generic IIR filter generation
                                        ) where
 
 
-import MMedia.Timecode.Arith
-import MMedia.Timeline
-import MMedia.Audio
+import Media.Timed.Timecode.Arith
+import Media.Timed.Timeline
+import Media.Timed.Audio
 
 import Data.List
 import Data.Maybe

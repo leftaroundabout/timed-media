@@ -1,5 +1,5 @@
 -- |
--- Module      : MMedia.Timecode.Arith
+-- Module      : Media.Timed.Timecode.Arith
 -- Copyright   : (c) Justus Sagemüller 2012
 -- License     : GPL v3
 -- 
@@ -13,15 +13,15 @@
 -- always a relative time at the side of a @%@,
 -- and always a frequency at the side of a @~@.
 
-module MMedia.Timecode.Arith( module MMedia.Timecode 
+module Media.Timed.Timecode.Arith( module Media.Timed.Timecode 
                             , (@-@), (@+%), (@-%), (%+%), (%-%)
                             , (~+~), (~-~), (%+@), (/%), (%/%), (/~), (~/~), (~/)
                             , (~*%), (%*~), (%*), (%/), (~*), (*%), (*~)
                             , earlierThan, laterThan
                             )where
 
-import MMedia.Timecode
-import MMedia.Timecode.Internal
+import Media.Timed.Timecode
+import Media.Timed.Timecode.Internal
 
 
 infix 6 @-@                

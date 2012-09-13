@@ -1,7 +1,7 @@
-Name:                mmedia
+Name:                timed-media
 Version:             0.1
 Category:            media
-Synopsis:            Chunk-based multimedia handling, for use in DAWs/NLEs
+Synopsis:            Time-dependent-multimedia handling library, for use in DAWs/NLEs
 Description:
     A library that provides ways of composing multimedia projects, in all the spirit
     of Haskell – i.e. referentially transparent and with no hard-to-trace mutations.
@@ -31,7 +31,7 @@ Description:
     the most trivial) require not just one time-value of its input function to calculate
     one output value but a whole range (every filter and many other effects as
     well are some kind of /convolution/). Calculating all of these over and over
-    again becomes infeasible very quickly. 'MMedia.Timeline' solves the problem by
+    again becomes infeasible very quickly. 'Media.Timed.Timeline' solves the problem by
     yielding not just a single time-value when requested, but also a continuation for
     calculating subsequent values with reasonable efficiency. Such a
     time-rendering is in some ways like the lazy lists used in the @dsp@ package,
@@ -55,9 +55,9 @@ Library
                      , process
                      , vector
                      , mtl
-  Exposed-modules:   MMedia.Timeline MMedia.Timecode MMedia.Timecode.Arith
-                     MMedia.Audio MMedia.Audio.Example MMedia.Audio.ALSAPlay
-                     MMedia.Audio.FX.Filter.SimpleIIR
-                     MMedia.Audio.SimpleFileIO
-  Other-modules:     MMedia.Timecode.Internal MMedia.MiscUtil.Data
+  Exposed-modules:   Media.Timed.Timeline Media.Timed.Timecode Media.Timed.Timecode.Arith
+                     Media.Timed.Audio Media.Timed.Audio.Example Media.Timed.Audio.ALSAPlay
+                     Media.Timed.Audio.FX.Filter.SimpleIIR
+                     Media.Timed.Audio.SimpleFileIO
+  Other-modules:     Media.Timed.Timecode.Internal Media.Timed.MiscUtil.Data
   ghc-options:       -O2 -optc-O2 -optc-ffast-math -optc-march=native

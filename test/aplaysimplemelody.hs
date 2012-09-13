@@ -1,6 +1,6 @@
-import MMedia.Timecode.Arith
-import MMedia.Audio.Example
-import MMedia.Audio.ALSAPlay
+import Media.Timed.Timecode.Arith
+import Media.Timed.Audio.Example
+import Media.Timed.Audio.ALSAPlay
 
 main = aplaySimple (timecode $ 0:0:[0]) $ mix [melodyLoop, bassLoop]
   where melodyLoop = timeChain [ (timecode [s], melody) | s<-take 50000  [0,    8 ..] ]

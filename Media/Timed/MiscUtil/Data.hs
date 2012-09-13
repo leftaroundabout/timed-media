@@ -1,4 +1,4 @@
-module MMedia.MiscUtil.Data where
+module Media.Timed.MiscUtil.Data where
 
 
 maybeCombine :: (a->a->a) -> Maybe a -> Maybe a -> Maybe a
