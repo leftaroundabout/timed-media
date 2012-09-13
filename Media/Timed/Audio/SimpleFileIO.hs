@@ -337,7 +337,8 @@ cond ⟿⚡ errC = when cond $ throwError errC
 
 
 getInt16le :: Get Int16
-getInt16le = fmap fromIntegral getWord16le
+getInt16le = fmap fromIntegral getWord16le  -- Somewhat strangely, 'fromIntegral'
+                                            -- does the right thing here (unsafeCoerce doesn't!)
 
 getInt24le :: Get Int32
 getInt24le = do

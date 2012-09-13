@@ -42,6 +42,12 @@ Description:
     such as sample rate or frame resolution stay in the low-level rendering domain
     and may well be adjusted dynamically, to suit quality demand and processor
     availability.
+    .
+    As for actual features, the library has at the moment only the very most
+    basic ones: editing of mono audio, which can be loaded from simple @.wav@ files
+    or internally generated from pure functions,
+    processed with basic lowpass filters and gain controls, and plainly mixed down.
+    Output is currently possible only by piping to the (linux/ALSA) @aplay@ command.
 License:             GPL-3
 License-file:        COPYING
 Author:              Justus Sagemüller
