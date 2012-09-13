@@ -18,10 +18,11 @@ The infrastructure should however allow adding much more advances features in qu
 Use cases / future directions
 ---
 
-The main intended use is as the core library for a nonlinear video editing program. Within that scope, audio processing is heavily emphasised, but not so much sequencing / looping / live performance (though the latter would be desirable, but Haskell's nondeterministic garbage collector makes it virtually impossible to guarantee safe performance at low latencies) but arranging and mixing down of prerecorded audio tracks, perhaps also with MIDI-controlled instruments etc..
+The main intended use (once the necessary features have been added) is as the core library for a nonlinear video editing program. Within that scope, audio processing is heavily emphasised, but not so much sequencing / looping / live performance (though the latter would be desirable, but Haskell's nondeterministic garbage collector makes it virtually impossible to guarantee safe performance at low latencies) as arranging and mixing down of prerecorded audio tracks, perhaps also with MIDI-controlled instruments etc..
 
 The general philosophy of keeping as much as possible of the digital implementation hidden (including time-limits of files) and of holding to Haskell's immutable-style implies that the program should follow a workflow rather different from the usual. Instead of pushing around "events" on a timeline, the preferred method might be _annotating_ the source material (itself consisting of infinite timelines) with "anchors" and having the program figure out by itself how to align the material so the anchors match.
 
+There shall at no level be any such thing as a fixed time-raster. Time is to be kept strictly apart from musical metric. While a raster is typically found in software aiming at music production, it is IMO (except for a few special cases) very _un-musical_ to impose any kind of constraint on the performance tempo (or other performance parameters). An anchor-approach should allow to keep all musical expressiveness, and still allow doing tasks that normally require a raster, such as combining independently recorded tracks, adding a click track to existing audio to aid orientation, perhaps even combining recorded tracks with notation material.
 
 Installing
 ---
