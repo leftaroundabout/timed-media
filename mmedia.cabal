@@ -1,6 +1,47 @@
 Name:                mmedia
 Version:             0.1
+Category:            media
 Synopsis:            Chunk-based multimedia handling, for use in DAWs/NLEs
+Description:
+    A library that provides ways of composing multimedia projects, in all the spirit
+    of Haskell – i.e. referentially transparent and with no hard-to-trace mutations.
+    All modern nonlinear editors are \"non-destructive\" in that they don't
+    mutate existing source material; still in most of these programs a lot of
+    operations rely on step-by-step \"tuning\" projects, rather than defining
+    them precisely correct right away. The latter certainly isn't completely
+    possible in general, but is particularly impeded by the lack of expressiveness
+    in typical GUIs. (That is not to say a mutable workflow is necessarily bad for
+    such programs; there sure are great nonlinear editors / digital audio workstations
+    around which work this way. But there may be room for improvement!)
+    .
+    Unlike many other media libraries (e.g. <http://hackage.haskell.org/package/dsp>)
+    this one follows a very \"physical\", \"analogue\" style, for instance the notion
+    of an audio sample rate only appears at the very lowest level. On the higher
+    levels all time-dependent data is thought of as just this: some kind of quantity
+    (be it sound pressure, brightness distribution or some control parameter) that
+    varies /as a function of time/. For that's what you're really interested in
+    when mixing music or cutting a film: the eventual time-continous, analogue
+    results; you don't really want to be bothered with any details of the digital
+    implementation.
+    .
+    Since Haskell is a functional language, a naïve version
+    of this approach is of course trivially simple to implement:
+    something like @type Audio = Double->Double@. Unfortunately, that fails to
+    be useful in any really interesting project; particularly audio effects (all but
+    the most trivial) require not just one time-value of its input function to calculate
+    one output value but a whole range (every filter and many other effects as
+    well are some kind of /convolution/). Calculating all of these over and over
+    again becomes infeasible very quickly. 'MMedia.Timeline' solves the problem by
+    yielding not just a single time-value when requested but a continuation for
+    calculating subsequent values as well, with reasonable efficiency. Such a
+    time-rendering is in some ways like the lazy lists used in the @dsp@ package,
+    but here not just samples or video frames are yielded in each continuation step
+    but whole /stricly evaluated chunks/, which is like the buffers all common audio
+    programs also use. This improves CPU cache usage and also gives more flexibility:
+    while the length of the chunks can stay fixed to ensure proper alignment, parameters
+    such as sample rate or frame resolution stay in the low-level rendering domain
+    and may well be adjusted dynamically, to suit quality demand and processor
+    availability.
 License:             GPL-3
 License-file:        COPYING
 Author:              Justus Sagemüller
@@ -9,9 +50,14 @@ Build-Type:          Simple
 Cabal-Version:       >=1.2
 
 Library
-  Build-Depends:     base >= 3, bytestring, binary, process, vector
+  Build-Depends:     base>=3
+                     , bytestring>=0.9.2.1, binary, binary-strict
+                     , process
+                     , vector
+                     , mtl
   Exposed-modules:   MMedia.Timeline MMedia.Timecode MMedia.Timecode.Arith
                      MMedia.Audio MMedia.Audio.Example MMedia.Audio.ALSAPlay
                      MMedia.Audio.FX.Filter.SimpleIIR
+                     MMedia.Audio.SimpleFileIO
   Other-modules:     MMedia.Timecode.Internal MMedia.MiscUtil.Data
   ghc-options:       -O2 -optc-O2 -optc-ffast-math -optc-march=native
