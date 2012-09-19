@@ -5,7 +5,7 @@
 -- Copyright   : (c) Justus Sagemüller 2012
 -- License     : GPL v3
 -- 
--- Maintainer  : sagemuej@smail.uni-koeln.de
+-- Maintainer  : (@) sagemuej $ smail.uni-koeln.de
 -- Stability   : experimental
 -- Portability : portable
 -- 
