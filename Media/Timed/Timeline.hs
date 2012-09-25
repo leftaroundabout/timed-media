@@ -26,9 +26,6 @@ module Media.Timed.Timeline ( -- * Imports
                          module Media.Timed.Timecode
                        , -- * Timeline data type
                          Timeline(Timeline, runTimeline), staticRenderTimeline
-                       , -- * Proxy types used to implement rendering of timelines
-                         TimeRendering(TimeRendering, runTimeRender)
-                       , TimePresentation(TimePresentation, getTimePresentation, nPreloaded)
                        , -- * General, chunk-agnostic operations
                          delay
                        , -- * Chunk-based editing of timelines
@@ -46,6 +43,9 @@ module Media.Timed.Timeline ( -- * Imports
                        , mix
                        , -- ** Chunks that can be gain-adjusted or α-scaled
                          Gain, Gainable(gainChunk), gain
+                       , -- * Proxy types used to implement rendering of timelines
+                         TimeRendering(TimeRendering, runTimeRender), dropChunks
+                       , TimePresentation(TimePresentation, getTimePresentation, nPreloaded)
                        ) where
 
 

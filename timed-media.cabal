@@ -61,7 +61,9 @@ Library
                      , process
                      , vector
                      , mtl
+                     , HList
   Exposed-modules:   Media.Timed.Timeline Media.Timed.Timecode Media.Timed.Timecode.Arith
+                     Media.Timed.Multiplex.HList
                      Media.Timed.Audio Media.Timed.Audio.Example Media.Timed.Audio.ALSAPlay
                      Media.Timed.Audio.FX.Filter.SimpleIIR
                      Media.Timed.Audio.SimpleFileIO
