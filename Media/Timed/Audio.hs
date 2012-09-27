@@ -70,7 +70,8 @@ type SampleDuration = RelTime
 -- but it's safer to keep options open. Use 'fromPCM' when
 -- writing audio sources that can only produce PCM signals.
 
-data Sampling = PCM { pcmSampleDuration :: SampleDuration }  -- inverse sample rate
+data Sampling = PCM { pcmSampleDuration :: SampleDuration } -- inverse sample rate
+         deriving(Eq)
 
 
 type SampleArray = VU.Vector AudioSample

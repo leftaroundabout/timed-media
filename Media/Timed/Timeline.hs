@@ -271,3 +271,4 @@ class Gainable chnk where
 
 gain :: Gainable c => Gain -> Timeline p c -> Timeline p c
 gain = cmap . gainChunk
+

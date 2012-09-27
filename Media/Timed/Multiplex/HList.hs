@@ -15,20 +15,15 @@
 {-# LANGUAGE FlexibleInstances      #-}
 
 
-module Media.Timed.Multiplex.HList where
+module Media.Timed.Multiplex.HList( module Media.Timed.Multiplex
+                                  ) where
 
 
-import Media.Timed.Timeline
+import Media.Timed.Multiplex
 import Media.Timed.Timecode.Arith
 
 import Data.HList.HListPrelude
 
-
-class Multiplex ml where
-  type MultiplexParams ml :: *
-  type MultiplexChunks ml :: *
-  multiplex :: ml -> Timeline (MultiplexParams ml) (MultiplexChunks ml)
---  deMultiplex :: Timeline (MultiplexParams ml) (MultiplexChunks ml) -> ml
 
 
 
@@ -65,4 +60,22 @@ instance (Multiplex l) => Multiplex (HCons (Timeline p c) l) where
 
                 (TimePresentation tailRender nPreT) = tailLine δt t₀ tpre
                 (Timeline tailLine) = multiplex mp
+
+
+
+class (HList2List l e) => HomogenHList l e where
+  hRepeat :: e -> l
+
+instance HomogenHList HNil e where
+  hRepeat _ = HNil
+
+instance (HomogenHList l e) => HomogenHList (HCons e l) e where
+  hRepeat e = HCons e $ hRepeat e
+
+
+instance ( HomogenHList params param
+         , HomogenHList chunks chunk
+         , Mixable chunk
+         ) => MuxMixable params param chunks chunk where
+  muxMix = cmap' (\p -> (hRepeat p, mixChunks . hList2List))
 
