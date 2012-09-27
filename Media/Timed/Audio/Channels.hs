@@ -21,8 +21,8 @@ import Data.HList.HListPrelude
 
 type DemuxedStereoAudio = HCons Audio (
                           HCons Audio ( HNil ) )
-type StereoAudio = Timeline (MultiplexParams DemuxedStereoAudio)
-                            (MultiplexChunks DemuxedStereoAudio)
+type StereoAudio = Timeline (HCons Sampling (HCons Sampling ( HNil ) ))
+                            (HCons AudioChunk (HCons AudioChunk ( HNil ) ))
 
 
 data Panning = PanLawConstPower { panLawConstPwr_angle :: Float }
