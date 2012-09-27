@@ -282,4 +282,4 @@ instance Mixable AudioChunk where
 
 
 instance Gainable AudioChunk where
-  gainChunk g = audioSampleCntMap (VU.map (*g))
+  gainChunk γ = audioSampleCntMap (VU.map (*γ))

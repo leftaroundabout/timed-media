@@ -79,3 +79,38 @@ instance ( HomogenHList params param
          ) => MuxMixable params param chunks chunk where
   muxMix = cmap' (\p -> (hRepeat p, mixChunks . hList2List))
 
+
+
+instance Chunky HNil where
+  switchOvr _ HNil HNil = HNil
+
+instance (HList l, Chunky l, Chunky e) => Chunky (HCons e l) where
+  switchOvr t (HCons c₁ c₁s) (HCons c₂ c₂s)
+     = HCons (switchOvr t c₁ c₂) (switchOvr t c₁s c₂s)
+
+
+instance Crossable HNil where
+  crossOvr _ HNil HNil = HNil
+
+instance (HList l, Crossable l, Crossable e) => Crossable (HCons e l) where
+  crossOvr f (HCons c₁ c₁s) (HCons c₂ c₂s)
+     = HCons (crossOvr f c₁ c₂) (crossOvr f c₁s c₂s)
+
+
+instance Mixable HNil where
+  mixChunks _ = HNil
+
+instance (HList l, Mixable l, Mixable e) => Mixable (HCons e l) where
+  mixChunks mixlist = HCons (mixChunks es) (mixChunks ls)
+   where (es, ls) = unzip $ map(\(HCons e l) -> (e,l)) mixlist
+
+
+instance Gainable HNil where
+  gainChunk _ HNil = HNil
+
+instance (HList l, Gainable l, Gainable e) => Gainable (HCons e l) where
+  gainChunk γ (HCons c cs) = HCons (gainChunk γ c) (gainChunk γ cs)
+
+
+
+
