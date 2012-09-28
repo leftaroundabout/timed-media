@@ -88,22 +88,22 @@ instance AlsaPlayable StereoAudio where
                  -> BL.hPut outPipe . runPut
                    $ VU.zipWithM_ (
                       \lsample rsample -> do
-                       putWord16le $ unsafeCoerce (samplePrep16 lsample)
                        putWord16le $ unsafeCoerce (samplePrep16 rsample)
+                       putWord16le $ unsafeCoerce (samplePrep16 lsample)
                      ) lChunk rChunk
                (Just (SampleCnt sl lChunk), Nothing)
                  -> BL.hPut outPipe . runPut
                    $ VU.forM_ lChunk (
                       \sample -> do
-                       putWord16le $ unsafeCoerce (samplePrep16 sample)
                        putWord16le 0
+                       putWord16le $ unsafeCoerce (samplePrep16 sample)
                      )
                (Nothing, Just (SampleCnt sl rChunk))
                  -> BL.hPut outPipe . runPut
                    $ VU.forM_ rChunk (
                       \sample -> do
-                       putWord16le 0
                        putWord16le $ unsafeCoerce (samplePrep16 sample)
+                       putWord16le 0
                      )
                (Nothing, Nothing) -> BL.hPut outPipe emptyChunkContent
 
