@@ -1,5 +1,5 @@
 Name:                timed-media
-Version:             0.1
+Version:             1.0.0.0
 Category:            media
 Synopsis:            Time-dependent-multimedia handling library, for use in DAWs/NLEs
 Description:
@@ -51,22 +51,16 @@ Description:
 License:             GPL-3
 License-file:        COPYING
 Author:              Justus Sagemüller
-Maintainer:          sagemuej@smail.uni-koeln.de
+Maintainer:          (@) jsagemue $ uni-koeln.de
 Build-Type:          Simple
 Cabal-Version:       >=1.2
 
 Library
   Build-Depends:     base>=4.5
-                     , bytestring>=0.9.2.1, binary, binary-strict
-                     , process
                      , vector
-                     , mtl
-                     , HList
-  Exposed-modules:   Media.Timed.Timeline Media.Timed.Timecode Media.Timed.Timecode.Arith
-                     Media.Timed.Multiplex Media.Timed.Multiplex.HList
-                     Media.Timed.Audio Media.Timed.Audio.Channels
-                     Media.Timed.Audio.Example Media.Timed.Audio.ALSAPlay
-                     Media.Timed.Audio.FX.Filter.SimpleIIR
-                     Media.Timed.Audio.SimpleFileIO
-  Other-modules:     Media.Timed.Timecode.Internal Media.Timed.MiscUtil.Data
-  ghc-options:       -O2 -optc-O2 -optc-ffast-math -optc-march=native
+                     , hsndfile-vector >= 0.5 && < 0.6
+                     , pulse-simple >= 0.1 && < 0.2
+                     , sobolev-spaces >= 0.1.0.0 && < 0.1.1
+  Exposed-modules:   Media.Timed.Audio.Stream
+  Other-modules:     
+  ghc-options:       -O2
