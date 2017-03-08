@@ -58,9 +58,11 @@ Cabal-Version:       >=1.2
 Library
   Build-Depends:     base>=4.5
                      , vector
+                     , hsndfile >= 0.8 && < 0.9
                      , hsndfile-vector >= 0.5 && < 0.6
                      , pulse-simple >= 0.1 && < 0.2
                      , sobolev-spaces >= 0.1.0.0 && < 0.1.1
+                     , data-default
   Exposed-modules:   Media.Timed.Audio.Stream
   Other-modules:     
   ghc-options:       -O2
